@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>자동 프로모션 추천 시스템</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 30px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .box {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #eef3ff;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>자동 행사 추천 시스템</h2>
+
+<div class="box">
+  <label>가장 빠른 유통기한 (일)</label>
+  <input type="number" id="minExpire">
+
+  <label>가장 느린 유통기한 (일)</label>
+  <input type="number" id="maxExpire">
+
+  <label>재고 수량 (개)</label>
+  <input type="number" id="stock">
+
+  <label>정가 (원)</label>
+  <input type="number" id="price">
+
+  <button onclick="recommend()">행사 추천</button>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+function recommend() {
+  const minExpire = Number(document.getElementById("minExpire").value);
+  const maxExpire = Number(document.getElementById("maxExpire").value);
+  const stock = Number(document.getElementById("stock").value);
+  const price = Number(document.getElementById("price").value);
+
+  const avgExpire = (minExpire + maxExpire) / 2;
+  let resultText = "";
+
+  // 🔴 1+1 강제 조건
+  if (
+    (avgExpire <= 3 && stock >= 30) ||
+    (avgExpire <= 10 && stock >= 80)
+  ) {
+    resultText = "추천 행사: 🔴 1+1 행사<br>이유: 폐기 위험 또는 과잉 재고";
+  }
+
+  // 🟠 2+1 조건
+  else if (avgExpire <= 7 && stock >= 25) {
+    resultText = "추천 행사: 🟠 2+1 행사<br>이유: 중간 수준 재고 압박";
+  }
+
+  // 🟢 할인 행사 (100원 단위 가격)
+  else {
+    const discountRates = [10, 15, 20, 25, 30, 35, 40];
+    let selectedRate = null;
+    let finalPrice = null;
+
+    for (let rate of discountRates) {
+      let discounted = price * (1 - rate / 100);
+      if (discounted % 100 === 0) {
+        selectedRate = rate;
+        finalPrice = discounted;
+        break;
+      }
+    }
+
+    // fallback (혹시 없을 경우)
+    if (selectedRate === null) {
+      finalPrice = Math.floor(price / 100) * 100;
+      selectedRate = Math.round((1 - finalPrice / price) * 100);
+    }
+
+    resultText =
+      `추천 행사: 🟢 ${selectedRate}% 할인<br>` +
+      `할인 후 가격: ${finalPrice}원<br>` +
+      `이유: 유통기한과 재고가 비교적 안정적`;
+  }
+
+  document.getElementById("result").innerHTML =
+    `평균 유통기한: ${avgExpire.toFixed(1)}일<br><br>` + resultText;
+}
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
